@@ -1,19 +1,18 @@
-use blkrs::run_lsblk;
 use clap::ColorChoice;
 use clap::{Arg, Command};
-use blkrs::read_dir;
+use read_dir::read_dir;
 
 fn main() {
 
 
-    let matches = Command::new("lsblk")
+    let matches = Command::new("read_dir")
         .version("0.0.1")
-        .author("Alfredo Deza")
-        .about("lsblk in Rust")
+        .author("Elminson De Oleo Baez")
+        .about("read dir in Rust")
         .color(ColorChoice::Always)
         .arg(
             Arg::new("path")
-                .help("Device to query")
+                .help("path to read")
                 .required(true)
                 .index(1),
         )
