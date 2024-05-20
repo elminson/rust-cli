@@ -1,25 +1,33 @@
-use clap::{Command, Arg};
-use clap::ColorChoice;
 use blkrs::run_lsblk;
+use clap::ColorChoice;
+use clap::{Arg, Command};
+use blkrs::read_dir;
 
 fn main() {
+
+
     let matches = Command::new("lsblk")
         .version("0.0.1")
         .author("Alfredo Deza")
         .about("lsblk in Rust")
         .color(ColorChoice::Always)
         .arg(
-            Arg::new("device")
+            Arg::new("path")
                 .help("Device to query")
                 .required(true)
-                .index(1)
+                .index(1),
         )
         .get_matches();
 
-    if let Some(device) = matches.get_one::<String>("device") {
-        let output = serde_json::to_string(&run_lsblk(&device)).unwrap();
-        println!("{}", output);
+    if let Some(path) = matches.get_one::<String>("path") {
+        let output = serde_json::to_string(&read_dir(&path));
+        match output {
+            Ok(output) => println!("{}", output),
+            Err(error) => {
+                eprintln!("Error: {}", error);
+            }
+        }
     } else {
-        println!("No device provided");
+        println!("No valid path provided");
     }
 }

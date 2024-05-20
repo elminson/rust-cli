@@ -1,26 +1,24 @@
 use std::process::Command;
+use std::fs;
 
 fn run_command(command: &str) -> String {
     let args: Vec<&str> = command.split(" ").collect();
-    let output = Command::new(args[0])
-        .args(&args[1..])
-        .output();
+    let output = Command::new(args[0]).args(&args[1..]).output();
     match output {
         Ok(output) => {
             let stdout = String::from_utf8_lossy(&output.stdout);
             stdout.to_string()
-        },
+        }
         Err(error) => {
             println!("Command failed: {command}");
             eprintln!("error: {}", error);
             "".to_string()
         }
     }
-
 }
 
 pub fn run_lsblk(device: &str) -> serde_json::Value {
-    let command = "llsblk -J -o NAME,SIZE,TYPE,MOUNTPOINT";
+    let command = "df -J -o NAME,SIZE,TYPE,MOUNTPOINT";
     let output = run_command(command);
     if output.is_empty() {
         return serde_json::json!({});
@@ -40,4 +38,24 @@ pub fn run_lsblk(device: &str) -> serde_json::Value {
         }
     }
     serde_json::json!({})
+}
+
+pub fn read_dir(path: &str) {
+    let paths = fs::read_dir(path);
+    match paths {
+        Ok(paths) => {
+            for path in paths {
+                // check if path is a directory
+                if path.as_ref().unwrap().path().is_dir() {
+                   read_dir(path.unwrap().path().to_str().unwrap());
+                } else {
+                    println!("Name: {}", path.unwrap().path().display())
+                }
+            }
+        }
+        Err(error) => {
+            eprintln!("Error: {}", error);
+        }
+    }
+
 }
